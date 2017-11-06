@@ -12,7 +12,6 @@ namespace EbayWorker.Models
         string _location;
         readonly Dictionary<string, int> _locations;
 
-
         public SearchFilter()
         {
             _locations = new Dictionary<string, int>

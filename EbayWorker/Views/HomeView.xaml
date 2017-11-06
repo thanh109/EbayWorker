@@ -150,6 +150,7 @@
                     <RadioButton Content="Books grouped by Condition (stupid logic)" IsChecked="{Binding Path=GroupByStupidLogic, Mode=TwoWay}" />
                     <TextBlock Text="Add to Price:" />
                     <TextBox Text="{Binding Path=AddToPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#####0.00'}" TextAlignment="Right" />
+                    <CheckBox Content="Add % of Price" IsChecked="{Binding Path=IsAddToPricePercent, Mode=TwoWay}" />
                 </StackPanel>
             </GroupBox>
 

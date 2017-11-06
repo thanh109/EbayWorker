@@ -196,18 +196,18 @@ namespace EbayWorker.Models
             return GetEnumerator();
         }
 
-        public string ToCsvString(decimal addToPrice)
+        public string ToCsvString(decimal addToPrice, bool isAddToPricePercent)
         {
             var builder = new StringBuilder();
             for (var index = 0; index < Count; index++)
             {
                 var book = this[index];
-                builder.AppendLine(string.Format("{0},{1},{2:#####0.00}", book.Isbn, book.Condition, book.Price + addToPrice));
+                builder.AppendLine(string.Format("{0},{1},{2:#####0.00}", book.Isbn, book.Condition, book.ComputePrice(addToPrice, isAddToPricePercent)));
             }
             return builder.ToString();
         }
 
-        public string ToCsvStringGroupedByCondition(decimal addToPrice)
+        public string ToCsvStringGroupedByCondition(decimal addToPrice, bool isAddToPricePercent)
         {
             if (Count == 0)
                 return null;
@@ -225,23 +225,23 @@ namespace EbayWorker.Models
                 switch(book.Condition)
                 {
                     case BookCondition.BrandNew:
-                        bn.AppendFormat("{0:#####0.00},", book.Price + addToPrice);
+                        bn.AppendFormat("{0:#####0.00},", book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
 
                     case BookCondition.LikeNew:
-                        ln.AppendFormat("{0:#####0.00},", book.Price + addToPrice);
+                        ln.AppendFormat("{0:#####0.00},", book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
 
                     case BookCondition.VeryGood:
-                        vg.AppendFormat("{0:#####0.00},", book.Price + addToPrice);
+                        vg.AppendFormat("{0:#####0.00},", book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
 
                     case BookCondition.Good:
-                        g.AppendFormat("{0:#####0.00},", book.Price + addToPrice);
+                        g.AppendFormat("{0:#####0.00},", book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
 
                     case BookCondition.Acceptable:
-                        a.AppendFormat("{0:#####0.00},", book.Price + addToPrice);
+                        a.AppendFormat("{0:#####0.00},", book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
                 }
             }
@@ -255,7 +255,7 @@ namespace EbayWorker.Models
             return builder.ToString();
         }
 
-        public string ToCsvStringGroupedByConditionStupidLogic(decimal addToPrice, string searchKeywoard)
+        public string ToCsvStringGroupedByConditionStupidLogic(decimal addToPrice, string searchKeywoard, bool isAddToPricePercent)
         {
             var bn = new StringBuilder(string.Format("{0}BNC,,,", searchKeywoard));
             var ln = new StringBuilder(string.Format("{0}LNC,,,", searchKeywoard));
@@ -284,22 +284,22 @@ namespace EbayWorker.Models
                 switch (book.Condition)
                 {
                     case BookCondition.BrandNew:
-                        bnp.Add(book.Price + addToPrice);
-                        lnp.Add(book.Price + addToPrice);
+                        bnp.Add(book.ComputePrice(addToPrice, isAddToPricePercent));
+                        lnp.Add(book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
 
                     case BookCondition.LikeNew:
-                        lnp.Add(book.Price + addToPrice);
-                        vgp.Add(book.Price + addToPrice);
+                        lnp.Add(book.ComputePrice(addToPrice, isAddToPricePercent));
+                        vgp.Add(book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
 
                     case BookCondition.VeryGood:
-                        vgp.Add(book.Price + addToPrice);
-                        gp.Add(book.Price + addToPrice);
+                        vgp.Add(book.ComputePrice(addToPrice, isAddToPricePercent));
+                        gp.Add(book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
 
                     case BookCondition.Good:
-                        gp.Add(book.Price + addToPrice);
+                        gp.Add(book.ComputePrice(addToPrice, isAddToPricePercent));
                         break;
                 }
             }

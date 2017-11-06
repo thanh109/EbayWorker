@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -19,7 +20,7 @@ namespace EbayWorker.ViewModels
     {
         string _inputFilePath, _outputDirectoryPath, _executionTime;
         int _parallelQueries, _executedQueries;
-        bool _failedQueriesOnly, _scrapBooksInParallel, _excludeEmptyResults, _groupByCondition, _groupByStupidLogic, _cancelFlag;
+        bool _failedQueriesOnly, _scrapBooksInParallel, _excludeEmptyResults, _groupByCondition, _groupByStupidLogic, _cancelFlag, _isAddToPricePercent;
         SearchFilter _filter;
         List<SearchModel> _searchQueries;
         decimal _addToPrice;
@@ -56,6 +57,12 @@ namespace EbayWorker.ViewModels
         {
             get { return _addToPrice; }
             set { Set(nameof(AddToPrice), ref _addToPrice, value); }
+        }
+
+        public bool IsAddToPricePercent
+        {
+            get { return _isAddToPricePercent; }
+            set { Set(nameof(IsAddToPricePercent), ref _isAddToPricePercent, value); }
         }
 
         public int ExecutedQueries
@@ -373,18 +380,18 @@ namespace EbayWorker.ViewModels
             StopTimer();
         }
 
-        void WriteOutput(string fileName,SearchModel query)
+        void WriteOutput(string fileName, SearchModel query)
         {
             if (fileName == null || query.Status != SearchStatus.Complete)
                 return;
 
             string contents;
             if (GroupByCondition)
-                contents = query.Books.ToCsvStringGroupedByCondition(AddToPrice);
+                contents = query.Books.ToCsvStringGroupedByCondition(AddToPrice, IsAddToPricePercent);
             else if (GroupByStupidLogic)
-                contents = query.Books.ToCsvStringGroupedByConditionStupidLogic(AddToPrice, query.Keywoard);
+                contents = query.Books.ToCsvStringGroupedByConditionStupidLogic(AddToPrice, query.Keywoard, IsAddToPricePercent);
             else
-                contents = query.Books.ToCsvString(AddToPrice);
+                contents = query.Books.ToCsvString(AddToPrice, IsAddToPricePercent);
 
             lock(_syncLock)
             {

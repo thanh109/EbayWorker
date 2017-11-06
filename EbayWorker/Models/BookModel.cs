@@ -85,5 +85,21 @@ namespace EbayWorker.Models
             return string.Format("{0} ({1})", Title, Code);
         }
 
+        public decimal ComputePrice(decimal addToPrice, bool isPercent)
+        {
+            if (isPercent)
+            {
+                if (addToPrice > 100)
+                    addToPrice = 100;
+                else if (addToPrice < 100)
+                    return Price;
+
+                var percentPrice = Price * (addToPrice / 100);
+                return Price + percentPrice;
+            }
+
+            return addToPrice + Price;
+        }
+
     }
 }
