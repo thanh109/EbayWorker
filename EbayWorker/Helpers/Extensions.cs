@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace EbayWorker.Helpers
 {
@@ -19,6 +22,11 @@ namespace EbayWorker.Helpers
                 @"(\p{Ll})(\P{Ll})",
                 "$1 $2"
             );
+        }
+
+        public static string GetStartupDirectory(this Application application)
+        {
+            return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
         }
 
         public static StringBuilder AppendLineFormatted(this StringBuilder instance, string format, params object[] parts)

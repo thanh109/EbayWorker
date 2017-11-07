@@ -4,28 +4,29 @@ using EbayWorker.Models;
 using EbayWorker.Views;
 using HtmlAgilityPack;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 using Forms = System.Windows.Forms;
 
 namespace EbayWorker.ViewModels
 {
     public class HomeViewModel: ViewModelBase
     {
-        string _inputFilePath, _outputDirectoryPath, _executionTime;
-        int _parallelQueries, _executedQueries;
-        bool _failedQueriesOnly, _scrapBooksInParallel, _excludeEmptyResults, _groupByCondition, _groupByStupidLogic, _cancelFlag, _isAddToPricePercent;
-        SearchFilter _filter;
-        List<SearchModel> _searchQueries;
-        decimal _addToPrice;
         static object _syncLock;
 
+        string _inputFilePath, _outputDirectoryPath, _executionTime;
+        readonly string _settingsFileName;
+        int _executedQueries;
+        bool _cancelFlag;
+        SettingsModel _settings;
+        List<SearchModel> _searchQueries;
         Timer _timer;
         Stopwatch _stopWatch;
         
@@ -38,31 +39,46 @@ namespace EbayWorker.ViewModels
 
         public HomeViewModel()
         {
-            _parallelQueries = 5;
             _executionTime = "00:00:00";
 
-            // TODO: remove this option to make app generic
-            _groupByStupidLogic = true;
+            _settingsFileName = Path.Combine(Application.Current.GetStartupDirectory(), "settings.json");
+            if (File.Exists(_settingsFileName))
+                _settings = JsonConvert.DeserializeObject<SettingsModel>(File.ReadAllText(_settingsFileName));
+        }
+
+        ~HomeViewModel()
+        {
+            if (_settings == null || string.IsNullOrEmpty(_settingsFileName))
+                return;
+
+            try
+            {
+                File.WriteAllText(_settingsFileName, JsonConvert.SerializeObject(_settings));
+            }
+            catch
+            {
+
+            }
         }
 
         #region properties
+
+        public SettingsModel Settings
+        {
+            get
+            {
+                if (_settings == null)
+                    _settings = new SettingsModel();
+
+                return _settings;
+            }
+            private set { _settings = value; }
+        }
 
         public string ExecutionTime
         {
             get { return _executionTime; }
             private set { Set(nameof(ExecutionTime), ref _executionTime, value); }
-        }
-
-        public decimal AddToPrice
-        {
-            get { return _addToPrice; }
-            set { Set(nameof(AddToPrice), ref _addToPrice, value); }
-        }
-
-        public bool IsAddToPricePercent
-        {
-            get { return _isAddToPricePercent; }
-            set { Set(nameof(IsAddToPricePercent), ref _isAddToPricePercent, value); }
         }
 
         public int ExecutedQueries
@@ -74,20 +90,6 @@ namespace EbayWorker.ViewModels
         public int MaxParallelQueries
         {
             get { return 20; }
-        }
-
-        public SearchFilter Filter
-        {
-            get
-            {
-                if (_filter == null)
-                {
-                    _filter = new SearchFilter();
-                    _filter.LoadDefaults();
-                }
-
-                return _filter;
-            }
         }
 
         public string InputFilePath
@@ -102,46 +104,10 @@ namespace EbayWorker.ViewModels
             private set { Set(nameof(OutputDirectoryPath), ref _outputDirectoryPath, value); }
         }
 
-        public int ParallelQueries
-        {
-            get { return _parallelQueries; }
-            set { Set(nameof(ParallelQueries), ref _parallelQueries, value); }
-        }
-
         public List<SearchModel> SearchQueries
         {
             get { return _searchQueries; }
             private set { Set(nameof(SearchQueries), ref _searchQueries, value); }
-        }
-
-        public bool FailedQueriesOnly
-        {
-            get { return _failedQueriesOnly; }
-            set { Set(nameof(FailedQueriesOnly), ref _failedQueriesOnly, value); }
-        }
-
-        public bool ScrapBooksInParallel
-        {
-            get { return _scrapBooksInParallel; }
-            set { Set(nameof(ScrapBooksInParallel), ref _scrapBooksInParallel, value); }
-        }
-
-        public bool ExcludeEmptyResults
-        {
-            get { return _excludeEmptyResults; }
-            set { Set(nameof(ExcludeEmptyResults), ref _excludeEmptyResults, value); }
-        }
-
-        public bool GroupByCondition
-        {
-            get { return _groupByCondition; }
-            set { Set(nameof(GroupByCondition), ref _groupByCondition, value); }
-        }
-
-        public bool GroupByStupidLogic
-        {
-            get { return _groupByStupidLogic; }
-            set { Set(nameof(GroupByStupidLogic), ref _groupByStupidLogic, value); }
         }
 
         #endregion
@@ -203,7 +169,7 @@ namespace EbayWorker.ViewModels
             get
             {
                 if (_selectAllowedSellers == null)
-                    _selectAllowedSellers = new RelayCommand<object, HashSet<string>>(SelectSellers, (sellers) => Filter.AllowedSellers = sellers);
+                    _selectAllowedSellers = new RelayCommand<object, HashSet<string>>(SelectSellers, (sellers) => Settings.Filter.AllowedSellers = sellers);
 
                 return _selectAllowedSellers;
             }
@@ -214,7 +180,7 @@ namespace EbayWorker.ViewModels
             get
             {
                 if (_selectRestrictedSellers == null)
-                    _selectRestrictedSellers = new RelayCommand<object, HashSet<string>>(SelectSellers, (sellers) => Filter.RestrictedSellers = sellers);
+                    _selectRestrictedSellers = new RelayCommand<object, HashSet<string>>(SelectSellers, (sellers) => Settings.Filter.RestrictedSellers = sellers);
 
                 return _selectRestrictedSellers;
             }
@@ -225,7 +191,7 @@ namespace EbayWorker.ViewModels
             get
             {
                 if (_clearAllowedSellers == null)
-                    _clearAllowedSellers = new RelayCommand(() => Filter.AllowedSellers = null);
+                    _clearAllowedSellers = new RelayCommand(() => Settings.Filter.AllowedSellers = null);
 
                 return _clearAllowedSellers;
             }
@@ -236,7 +202,7 @@ namespace EbayWorker.ViewModels
             get
             {
                 if (_clearRestrictedSellers == null)
-                    _clearRestrictedSellers = new RelayCommand(() => Filter.RestrictedSellers = null);
+                    _clearRestrictedSellers = new RelayCommand(() => Settings.Filter.RestrictedSellers = null);
 
                 return _clearRestrictedSellers;
             }
@@ -327,7 +293,7 @@ namespace EbayWorker.ViewModels
             }
 
             var parallelOptions = new ParallelOptions();
-            parallelOptions.MaxDegreeOfParallelism = ParallelQueries;
+            parallelOptions.MaxDegreeOfParallelism = Settings.ParallelQueries;
 
             Parallel.ForEach(SearchQueries, parallelOptions, query =>
             {
@@ -339,13 +305,13 @@ namespace EbayWorker.ViewModels
                     return;
 
                 var parser = new HtmlDocument();
-                if (FailedQueriesOnly)
+                if (Settings.FailedQueriesOnly)
                 {
                     if (status != SearchStatus.Complete)
-                        query.Search(ref parser, Filter, ParallelQueries, ScrapBooksInParallel);
+                        query.Search(ref parser, Settings.Filter, Settings.ParallelQueries, Settings.ScrapBooksInParallel);
                 }                    
                 else
-                    query.Search(ref parser, Filter, ParallelQueries, ScrapBooksInParallel);
+                    query.Search(ref parser, Settings.Filter, Settings.ParallelQueries, Settings.ScrapBooksInParallel);
 
                 WriteOutput(fileName, query);
 
@@ -365,7 +331,7 @@ namespace EbayWorker.ViewModels
                     File.WriteAllText(notCompletedFileName, notCompletedKeywoards.ToString());
             }
 
-            if (ExcludeEmptyResults)
+            if (Settings.ExcludeEmptyResults)
             {
                 for(var index = SearchQueries.Count -1; index >=0; index--)
                 {
@@ -386,12 +352,12 @@ namespace EbayWorker.ViewModels
                 return;
 
             string contents;
-            if (GroupByCondition)
-                contents = query.Books.ToCsvStringGroupedByCondition(AddToPrice, IsAddToPricePercent);
-            else if (GroupByStupidLogic)
-                contents = query.Books.ToCsvStringGroupedByConditionStupidLogic(AddToPrice, query.Keywoard, IsAddToPricePercent);
+            if (Settings.GroupByCondition)
+                contents = query.Books.ToCsvStringGroupedByCondition(Settings.AddToPrice, Settings.IsAddToPricePercent);
+            else if (Settings.GroupByStupidLogic)
+                contents = query.Books.ToCsvStringGroupedByConditionStupidLogic(Settings.AddToPrice, query.Keywoard, Settings.IsAddToPricePercent);
             else
-                contents = query.Books.ToCsvString(AddToPrice, IsAddToPricePercent);
+                contents = query.Books.ToCsvString(Settings.AddToPrice, Settings.IsAddToPricePercent);
 
             lock(_syncLock)
             {

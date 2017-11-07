@@ -90,46 +90,49 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Slider
+                    Width="165"
+                    Margin="2,2,0,2"
+                    HorizontalAlignment="Left"
                     Maximum="{Binding Path=MaxParallelQueries, Mode=OneTime}"
                     Minimum="1"
                     TickFrequency="1"
-                    Value="{Binding Path=ParallelQueries, Mode=TwoWay}" />
-                <TextBlock Grid.Column="1" Text="{Binding Path=ParallelQueries, Mode=OneWay}" />
+                    Value="{Binding Path=Settings.ParallelQueries, Mode=TwoWay}" />
+                <TextBlock Grid.Column="1" Text="{Binding Path=Settings.ParallelQueries, Mode=OneWay}" />
             </Grid>
 
             <CheckBox
                 Grid.Row="2"
                 Content="Scrap books data in parallel."
-                IsChecked="{Binding Path=ScrapBooksInParallel, Mode=TwoWay}" />
+                IsChecked="{Binding Path=Settings.ScrapBooksInParallel, Mode=TwoWay}" />
 
             <CheckBox
                 Grid.Row="3"
                 Content="Exclude results with no books."
-                IsChecked="{Binding Path=ExcludeEmptyResults, Mode=TwoWay}" />
+                IsChecked="{Binding Path=Settings.ExcludeEmptyResults, Mode=TwoWay}" />
 
             <GroupBox Grid.Row="4" Header="Buying Formats">
                 <StackPanel>
-                    <CheckBox Content="Auction" IsChecked="{Binding Path=Filter.IsAuction, Mode=TwoWay}" />
-                    <CheckBox Content="Buy It Now" IsChecked="{Binding Path=Filter.IsBuyItNow, Mode=TwoWay}" />
-                    <CheckBox Content="Classified Ads" IsChecked="{Binding Path=Filter.IsClassifiedAds, Mode=TwoWay}" />
+                    <CheckBox Content="Auction" IsChecked="{Binding Path=Settings.Filter.IsAuction, Mode=TwoWay}" />
+                    <CheckBox Content="Buy It Now" IsChecked="{Binding Path=Settings.Filter.IsBuyItNow, Mode=TwoWay}" />
+                    <CheckBox Content="Classified Ads" IsChecked="{Binding Path=Settings.Filter.IsClassifiedAds, Mode=TwoWay}" />
                 </StackPanel>
             </GroupBox>
 
             <TextBlock Grid.Row="5" Text="Location:" />
             <ComboBox
                 Grid.Row="6"
-                ItemsSource="{Binding Path=Filter.Locations, Mode=OneTime}"
-                SelectedItem="{Binding Path=Filter.Location, Mode=TwoWay}" />
+                ItemsSource="{Binding Path=Settings.Filter.Locations, Mode=OneTime}"
+                SelectedItem="{Binding Path=Settings.Filter.Location, Mode=TwoWay}" />
 
             <GroupBox Grid.RowSpan="4" Grid.Column="1">
                 <GroupBox.Header>
-                    <CheckBox Content="Price" IsChecked="{Binding Path=Filter.IsPriceFiltered, Mode=TwoWay}" />
+                    <CheckBox Content="Price" IsChecked="{Binding Path=Settings.Filter.IsPriceFiltered, Mode=TwoWay}" />
                 </GroupBox.Header>
-                <StackPanel IsEnabled="{Binding Path=Filter.IsPriceFiltered, Mode=OneWay}">
+                <StackPanel IsEnabled="{Binding Path=Settings.Filter.IsPriceFiltered, Mode=OneWay}">
                     <TextBlock Text="More Than:" />
-                    <TextBox Text="{Binding Path=Filter.MinimumPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#####0.00'}" TextAlignment="Right" />
+                    <TextBox Text="{Binding Path=Settings.Filter.MinimumPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#####0.00'}" TextAlignment="Right" />
                     <TextBlock Text="Less Than:" />
-                    <TextBox Text="{Binding Path=Filter.MaximumPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#####0.00'}" TextAlignment="Right" />
+                    <TextBox Text="{Binding Path=Settings.Filter.MaximumPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#####0.00'}" TextAlignment="Right" />
                 </StackPanel>
             </GroupBox>
 
@@ -149,8 +152,8 @@
                     <RadioButton Content="Books grouped by Condition" IsChecked="{Binding Path=GroupByCondition, Mode=TwoWay}" />
                     <RadioButton Content="Books grouped by Condition (stupid logic)" IsChecked="{Binding Path=GroupByStupidLogic, Mode=TwoWay}" />
                     <TextBlock Text="Add to Price:" />
-                    <TextBox Text="{Binding Path=AddToPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#####0.00'}" TextAlignment="Right" />
-                    <CheckBox Content="Add % of Price" IsChecked="{Binding Path=IsAddToPricePercent, Mode=TwoWay}" />
+                    <TextBox Text="{Binding Path=Settings.AddToPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#####0.00'}" TextAlignment="Right" />
+                    <CheckBox Content="Add % of Price" IsChecked="{Binding Path=Settings.IsAddToPricePercent, Mode=TwoWay}" />
                 </StackPanel>
             </GroupBox>
 
@@ -174,19 +177,19 @@
                     <CheckBox
                         VerticalAlignment="Center"
                         Content="Feedback Score (more than):"
-                        IsChecked="{Binding Path=Filter.CheckFeedbackScore, Mode=TwoWay}" />
+                        IsChecked="{Binding Path=Settings.Filter.CheckFeedbackScore, Mode=TwoWay}" />
                     <TextBox
                         Grid.Column="1"
                         IsEnabled="{Binding Path=Filter.CheckFeedbackScore, Mode=OneWay}"
-                        Text="{Binding Path=Filter.FeedbackScore, Mode=TwoWay}"
+                        Text="{Binding Path=Settings.Filter.FeedbackScore, Mode=TwoWay}"
                         TextAlignment="Right" />
 
                     <CheckBox
                         Grid.Column="2"
                         VerticalAlignment="Center"
                         Content="Feedback % (more than):"
-                        IsChecked="{Binding Path=Filter.CheckFeedbackPercent, Mode=TwoWay}" />
-                    <Grid Grid.Column="3" IsEnabled="{Binding Path=Filter.CheckFeedbackPercent, Mode=OneWay}">
+                        IsChecked="{Binding Path=Settings.Filter.CheckFeedbackPercent, Mode=TwoWay}" />
+                    <Grid Grid.Column="3" IsEnabled="{Binding Path=Settings.Filter.CheckFeedbackPercent, Mode=OneWay}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="50" />
@@ -197,10 +200,10 @@
                             SmallChange="0.5"
                             TickFrequency="10"
                             TickPlacement="None"
-                            Value="{Binding Path=Filter.FeedbackPercent, Mode=TwoWay}" />
+                            Value="{Binding Path=Settings.Filter.FeedbackPercent, Mode=TwoWay}" />
                         <TextBox
                             Grid.Column="1"
-                            Text="{Binding Path=Filter.FeedbackPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#0.00'}"
+                            Text="{Binding Path=Settings.Filter.FeedbackPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='#0.00'}"
                             TextAlignment="Right" />
                     </Grid>
 
@@ -209,12 +212,12 @@
                         Grid.Row="1"
                         VerticalAlignment="Bottom"
                         Content="Allowed Sellers:"
-                        IsChecked="{Binding Path=Filter.CheckAllowedSellers, Mode=TwoWay}" />
+                        IsChecked="{Binding Path=Settings.Filter.CheckAllowedSellers, Mode=TwoWay}" />
                     <StackPanel
                         Grid.Row="1"
                         Grid.Column="1"
                         HorizontalAlignment="Right"
-                        IsEnabled="{Binding Path=Filter.CheckAllowedSellers, Mode=OneWay}"
+                        IsEnabled="{Binding Path=Settings.Filter.CheckAllowedSellers, Mode=OneWay}"
                         Orientation="Horizontal">
                         <Button Command="{Binding Path=SelectAllowedSellersCommand, Mode=OneTime}" ToolTip="Select file...">
                             <Image Width="16" Source="/Assets/File16.png" />
@@ -227,20 +230,20 @@
                         Grid.Row="2"
                         Grid.ColumnSpan="2"
                         MaxHeight="160"
-                        IsEnabled="{Binding Path=Filter.CheckAllowedSellers, Mode=OneWay}"
-                        ItemsSource="{Binding Path=Filter.AllowedSellers, Mode=OneWay}" />
+                        IsEnabled="{Binding Path=Settings.Filter.CheckAllowedSellers, Mode=OneWay}"
+                        ItemsSource="{Binding Path=Settings.Filter.AllowedSellers, Mode=OneWay}" />
 
                     <CheckBox
                         Grid.Row="1"
                         Grid.Column="2"
                         VerticalAlignment="Bottom"
                         Content="Restricted Sellers:"
-                        IsChecked="{Binding Path=Filter.CheckRestrictedSellers, Mode=TwoWay}" />
+                        IsChecked="{Binding Path=Settings.Filter.CheckRestrictedSellers, Mode=TwoWay}" />
                     <StackPanel
                         Grid.Row="1"
                         Grid.Column="4"
                         HorizontalAlignment="Right"
-                        IsEnabled="{Binding Path=Filter.CheckRestrictedSellers, Mode=OneWay}"
+                        IsEnabled="{Binding Path=Settings.Filter.CheckRestrictedSellers, Mode=OneWay}"
                         Orientation="Horizontal">
                         <Button Command="{Binding Path=SelectRestrictedSellersCommand, Mode=OneTime}" ToolTip="Select file...">
                             <Image Width="16" Source="/Assets/File16.png" />
@@ -254,8 +257,8 @@
                         Grid.Column="2"
                         Grid.ColumnSpan="2"
                         MaxHeight="160"
-                        IsEnabled="{Binding Path=Filter.CheckRestrictedSellers, Mode=OneWay}"
-                        ItemsSource="{Binding Path=Filter.RestrictedSellers, Mode=OneWay}" />
+                        IsEnabled="{Binding Path=Settings.Filter.CheckRestrictedSellers, Mode=OneWay}"
+                        ItemsSource="{Binding Path=Settings.Filter.RestrictedSellers, Mode=OneWay}" />
                 </Grid>
             </GroupBox>
         </Grid>
@@ -294,7 +297,7 @@
                 Grid.Column="2"
                 VerticalAlignment="Center"
                 Content="Execute unfinished and failed search queries only."
-                IsChecked="{Binding Path=FailedQueriesOnly, Mode=TwoWay}" />
+                IsChecked="{Binding Path=Settings.FailedQueriesOnly, Mode=TwoWay}" />
             <Button Grid.Column="3" Command="{Binding Path=SearchCommand, Mode=OneTime}">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/Assets/Work16.png" />
