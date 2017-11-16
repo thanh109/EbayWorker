@@ -91,7 +91,7 @@ namespace EbayWorker.Models
             {
                 if (addToPrice > 100)
                     addToPrice = 100;
-                else if (addToPrice < 100)
+                else if (addToPrice <= 0)
                     return Price;
 
                 var percentPrice = Price * (addToPrice / 100);
